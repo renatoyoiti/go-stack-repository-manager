@@ -33,5 +33,6 @@ module.exports = {
     ],
     'import/prefer-default-export': 'off',
     'react/prefer-stateless-function': 'off',
+    'react/static-property-placement': 'off'
   },
 };
