@@ -1,9 +1,3 @@
-<style>
-  pre {
-    white-space: pre-wrap !important;
-  }
-</style>
-
 <div align=center>
 <img src=".github/logo.svg" height=160 alt="PocketRepo" algin=center>
 </div>
