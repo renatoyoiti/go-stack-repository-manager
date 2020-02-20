@@ -5,6 +5,12 @@ export const Form = styled.form`
   display: flex;
   flex-direction: row;
 
+  &.displayErrors {
+    input {
+      border: 1px solid red;
+    }
+  }
+
   input {
     flex: 1;
     border: 1px solid #eee;
@@ -72,4 +78,15 @@ export const List = styled.ul`
       text-decoration: none;
     }
   }
+`;
+
+export const ErrorMessage = styled.p`
+  color: red;
+  font-weight: bold;
+  font-size: 14px;
+  margin-top: 10px;
+  border: 1px solid #ff4f4f;
+  background-color: #ff6f6f33;
+  padding: 5px;
+  border-radius: 5px;
 `;

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 import api from '../../services/api';
 
-import { Form, SubmitButton, List } from './styles';
+import { Form, SubmitButton, List, ErrorMessage } from './styles';
 import Container from '../../components/Container';
 
 export default class Main extends Component {
@@ -14,6 +14,8 @@ export default class Main extends Component {
       newRepo: '',
       repositories: [],
       loading: false,
+      displayErrors: false,
+      errorMessage: '',
     };
   }
 
@@ -39,25 +41,57 @@ export default class Main extends Component {
   handleSubmit = async e => {
     e.preventDefault();
 
+    if (!e.target.checkValidity()) {
+      this.setState({
+        displayErrors: true,
+        errorMessage: 'Favor inserir um repositório.',
+      });
+      return;
+    }
+
     const { newRepo, repositories } = this.state;
 
-    this.setState({ loading: true });
+    try {
+      this.setState({ loading: true });
 
-    const response = await api.get(`/repos/${newRepo}`);
+      const repoExists = repositories.find(repo => repo.name === newRepo);
 
-    const data = {
-      name: response.data.full_name,
-    };
+      if (repoExists) {
+        throw new Error('Repositório duplicado');
+      }
 
-    this.setState({
-      repositories: [...repositories, data],
-      newRepo: '',
-      loading: false,
-    });
+      const response = await api.get(`/repos/${newRepo}`);
+
+      const data = {
+        name: response.data.full_name,
+      };
+
+      this.setState({
+        newRepo: '',
+        repositories: [...repositories, data],
+        displayErrors: false,
+        errorMessage: '',
+      });
+    } catch (err) {
+      this.setState({
+        displayErrors: true,
+        errorMessage: `${err.name}: ${err.message}`,
+      });
+    } finally {
+      this.setState({
+        loading: false,
+      });
+    }
   };
 
   render() {
-    const { newRepo, loading, repositories } = this.state;
+    const {
+      newRepo,
+      loading,
+      repositories,
+      displayErrors,
+      errorMessage,
+    } = this.state;
     return (
       <Container>
         <h1>
@@ -65,12 +99,17 @@ export default class Main extends Component {
           Repositórios
         </h1>
 
-        <Form onSubmit={this.handleSubmit}>
+        <Form
+          noValidate
+          className={displayErrors ? 'displayErrors' : ''}
+          onSubmit={this.handleSubmit}
+        >
           <input
             type="text"
-            placeholder="Adicionar repositório"
+            placeholder="usuario/nome_repositorio"
             value={newRepo}
             onChange={this.handleInputChange}
+            required
           />
 
           <SubmitButton loading={loading}>
@@ -81,6 +120,7 @@ export default class Main extends Component {
             )}
           </SubmitButton>
         </Form>
+        {displayErrors ? <ErrorMessage>{errorMessage}</ErrorMessage> : ''}
 
         <List>
           {repositories.map(repository => (
